@@ -1,0 +1,7 @@
+#BlueJ class context
+#Mon Nov 02 18:22:31 COT 2026
+comment0.target=Integrante
+comment1.params=identificacion nombre apellido telefono funcion
+comment1.target=Integrante(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+comment2.target=java.lang.String consultarInformacion()
+numComments=3

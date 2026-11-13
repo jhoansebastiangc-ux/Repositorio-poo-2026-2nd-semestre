@@ -1,0 +1,12 @@
+#BlueJ class context
+#Mon Nov 02 18:30:52 COT 2026
+comment0.target=Recurso
+comment1.params=codigo nombre tipo cantidadDisponible
+comment1.target=Recurso(java.lang.String, java.lang.String, TipoRecurso, int)
+comment2.params=cantidad
+comment2.target=void actualizarCantidad(int)
+comment3.params=estado
+comment3.target=void actualizarEstado(EstadoRecurso)
+comment4.target=int consultarDisponibilidad()
+comment5.target=java.lang.String getCodigo()
+numComments=6

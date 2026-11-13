@@ -1,0 +1,13 @@
+#BlueJ class context
+#Tue Nov 03 20:16:57 COT 2026
+comment0.target=EmergenciaMedica
+comment1.params=codigo descripcion zonaAfectada fechaOcurrencia afectadosEstimados infraestructuraColapsada capacidadLocalSuperada cantidadPacientes ambulanciasUtilizadas
+comment1.target=EmergenciaMedica(java.lang.String, java.lang.String, java.lang.String, java.util.Date, int, boolean, boolean, int, int)
+comment2.params=cantidad
+comment2.target=void registrarPacientes(int)
+comment3.params=cantidad
+comment3.target=void registrarAmbulancias(int)
+comment4.target=int getCantidadPacientes()
+comment5.target=int getAmbulanciasUtilizadas()
+comment6.target=java.lang.String consultarInformacion()
+numComments=7

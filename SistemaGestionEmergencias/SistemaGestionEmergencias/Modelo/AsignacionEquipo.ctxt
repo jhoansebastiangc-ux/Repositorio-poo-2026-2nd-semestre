@@ -1,0 +1,9 @@
+#BlueJ class context
+#Mon Nov 02 18:26:38 COT 2026
+comment0.target=AsignacionEquipo
+comment1.target=AsignacionEquipo()
+comment2.target=void finalizarAsignacion()
+comment3.params=integrante
+comment3.target=void agregarIntegrante(Integrante)
+comment4.target=java.util.List consultarIntegrantes()
+numComments=5

@@ -1,0 +1,13 @@
+#BlueJ class context
+#Mon Nov 02 18:30:52 COT 2026
+comment0.target=Equipo
+comment1.params=codigo nombre tipo
+comment1.target=Equipo(java.lang.String, java.lang.String, TipoEquipo)
+comment2.params=estado
+comment2.target=void cambiarEstado(EstadoEquipo)
+comment3.params=integrante
+comment3.target=void agregarIntegrante(Integrante)
+comment4.target=java.util.List consultarIntegrantes()
+comment5.target=java.lang.String getCodigo()
+comment6.target=EstadoEquipo getEstado()
+numComments=7

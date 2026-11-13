@@ -1,0 +1,13 @@
+#BlueJ class context
+#Tue Nov 03 20:16:57 COT 2026
+comment0.target=EmergenciaHumanitaria
+comment1.params=codigo descripcion zonaAfectada fechaOcurrencia afectadosEstimados infraestructuraColapsada capacidadLocalSuperada personasQueRequierenAyuda kitsAyudaEntregados
+comment1.target=EmergenciaHumanitaria(java.lang.String, java.lang.String, java.lang.String, java.util.Date, int, boolean, boolean, int, int)
+comment2.params=cantidad
+comment2.target=void registrarPersonasAyuda(int)
+comment3.params=cantidad
+comment3.target=void registrarKits(int)
+comment4.target=int getPersonasQueRequierenAyuda()
+comment5.target=int getKitsAyudaEntregados()
+comment6.target=java.lang.String consultarInformacion()
+numComments=7
