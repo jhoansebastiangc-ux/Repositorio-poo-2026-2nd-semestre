@@ -1,9 +1,0 @@
-#BlueJ class context
-#Tue Nov 03 20:48:44 COT 2026
-comment0.target=AsignacionRecurso
-comment1.params=cantidadAsignada
-comment1.target=AsignacionRecurso(int)
-comment2.params=cantidad
-comment2.target=void actualizarCantidad(int)
-comment3.target=void finalizarAsignacion()
-numComments=4
