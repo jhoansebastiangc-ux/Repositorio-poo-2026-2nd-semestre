@@ -25,11 +25,14 @@ public class Equipo {
         this.estado = estado;
     }
 
-    public void agregarIntegrante(Integrante integrante) {
-        if (integrante != null) {
-            integrantes.add(integrante);
-            numIntegrantes = integrantes.size();
+    public boolean agregarIntegrante(Integrante integrante) {
+        for (Integrante i : integrantes) {
+            if (i.getIdentificacion().equals(integrante.getIdentificacion())) {
+                return false; // Ya está en este equipo
+            }
         }
+        integrantes.add(integrante);
+        return true;
     }
 
     public List<Integrante> consultarIntegrantes() {

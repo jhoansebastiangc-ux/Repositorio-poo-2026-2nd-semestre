@@ -70,11 +70,41 @@ public class SistemaGestionEmergencias {
         return null;
     }
 
-    public void registrarIntegrante(Integrante integrante) {
-        if (integrante != null) {
-            listaIntegrantes.add(integrante);
+    public boolean registrarIntegranteEnEquipo(String codigoEquipo, Integrante nuevoIntegrante) {
+        Equipo equipo = buscarEquipo(codigoEquipo);
+        if (equipo == null) {
+            return false; // El equipo no existe
         }
-    }
+
+        // 1. Validar que la persona NO esté registrada en otro equipo que esté Ocupado/Disponible/Asignado
+        for (Equipo eq : listaEquipos) {
+            if (eq.getEstado() != EstadoEquipo.FUERA_DE_SERVICIO) { // O la condición de activo
+                for (Integrante i : eq.consultarIntegrantes()) {
+                    if (i.getIdentificacion().equals(nuevoIntegrante.getIdentificacion())) {
+                        return false; // La persona ya pertenece a otro equipo activo
+                    }
+                }
+            }
+        }
+
+        // 2. Verificar si el integrante ya existe en la lista general del sistema
+        Integrante integranteExistente = null;
+        for (Integrante i : listaIntegrantes) {
+            if (i.getIdentificacion().equals(nuevoIntegrante.getIdentificacion())) {
+                integranteExistente = i;
+                break;
+            }
+        }
+
+        // Si no existe en el sistema, lo creamos y lo agregamos a la lista general
+        if (integranteExistente == null) {
+            listaIntegrantes.add(nuevoIntegrante);
+            integranteExistente = nuevoIntegrante;
+        }
+
+        // 3. Agregarlo al equipo
+        return equipo.agregarIntegrante(integranteExistente);
+    }  
 
     public void registrarRecurso(Recurso r) {
         if (r != null && buscarRecurso(r.getCodigo()) == null) {
@@ -95,23 +125,28 @@ public class SistemaGestionEmergencias {
         return null;
     }
 
-    public void asignarEquipoAEmergencia(
-            String codigoEmergencia, String codigoEquipo) {
-
+    public void asignarEquipoAEmergencia(String codigoEmergencia, String codigoEquipo) {
         Emergencia emergencia = buscarEmergencia(codigoEmergencia);
         Equipo equipo = buscarEquipo(codigoEquipo);
 
-        if (emergencia != null && equipo != null
-                && equipo.getEstado() == EstadoEquipo.DISPONIBLE) {
+        if (emergencia != null && equipo != null) {
+            // REQUISITO: Evitar que un equipo ocupado en una misión sea asignado simultáneamente a otra
             if (equipo.getEstado() == EstadoEquipo.EN_MISION || equipo.getEstado() == EstadoEquipo.ASIGNADO) {
-                throw new IllegalArgumentException("El equipo ya se encuentra ocupado en una misión.");
+                throw new IllegalArgumentException("El equipo ya se encuentra ocupado en una misión y no puede ser asignado.");
             }
 
+            // Creamos la asignación registrando fecha/hora automáticamente (visto en tu clase AsignacionEquipo)
             AsignacionEquipo asignacion = new AsignacionEquipo();
+            for(Integrante i : equipo.consultarIntegrantes()) {
+                asignacion.agregarIntegrante(i); // Registra los integrantes participantes
+            }
+            
             listaAsignacionesEquipo.add(asignacion);
-            equipo.cambiarEstado(EstadoEquipo.ASIGNADO);
+            
+            // Cambiamos estados
+            equipo.cambiarEstado(EstadoEquipo.EN_MISION);
             emergencia.cambiarEstado(EstadoEmergencia.EN_ATENCION);
-        }else {
+        } else {
             throw new IllegalArgumentException("Emergencia o equipo no encontrado.");
         }
     }
