@@ -9,8 +9,12 @@ public class AsignacionEquipo {
     private Date fechaHoraAsignacion;
     private EstadoAsignacion estado;
     private List<Integrante> integrantes;
+    private Emergencia emergencia;
+    private Equipo equipo;
 
-    public AsignacionEquipo() {
+    public AsignacionEquipo(Emergencia emergencia, Equipo equipo) {
+        this.emergencia = emergencia;
+        this.equipo = equipo;
         fechaHoraAsignacion = new Date();
         estado = EstadoAsignacion.ACTIVA;
         integrantes = new ArrayList<Integrante>();
@@ -29,4 +33,10 @@ public class AsignacionEquipo {
     public List<Integrante> consultarIntegrantes() {
         return new ArrayList<Integrante>(integrantes);
     }
+    
+    public Emergencia getEmergencia() { return emergencia; }
+    public Equipo getEquipo() { return equipo; }
+    public EstadoAsignacion getEstado() { return estado; }
+    public Date getFechaHoraAsignacion() { return fechaHoraAsignacion; }
+    
 }

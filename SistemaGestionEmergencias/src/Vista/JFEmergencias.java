@@ -70,6 +70,13 @@ public class JFEmergencias extends JFrame {
     private DefaultTableModel modeloEquipos = new DefaultTableModel(
         new String[] {"Código", "Nombre", "Tipo", "Estado"}, 0);
     private JTable tablaEquipos = new JTable(modeloEquipos);
+    private JTextField txtIdIntegrante = new JTextField(7);
+    private JTextField txtNombreIntegrante = new JTextField(7);
+    private JTextField txtApellidoIntegrante = new JTextField(7);
+    private JTextField txtTelefonoIntegrante = new JTextField(7);
+    private JTextField txtFuncionIntegrante = new JTextField(7);
+    private JButton btnAgregarIntegrante = new JButton("Agregar integrante");
+    private JButton btnFinalizarMision = new JButton("Finalizar misión");
     
     // Panel Recursos
     private JTextField txtCodigoRecurso = new JTextField(6);
@@ -105,7 +112,7 @@ public class JFEmergencias extends JFrame {
                 break;
             case "EQUIPOS":
                 contenido.add(crearPanelEquipos(), BorderLayout.CENTER);
-                setSize(850, 550);
+                setSize(950, 600);
                 break;
             case "RECURSOS":
                 contenido.add(crearPanelRecursos(), BorderLayout.CENTER);
@@ -199,7 +206,8 @@ public class JFEmergencias extends JFrame {
         formAsignacion.add(etiqueta("Emergencia:"));
         formAsignacion.add(cmbEmergenciaParaEquipo);
         formAsignacion.add(btnAsignarEquipo);
-
+        formAsignacion.add(btnFinalizarMision);
+        
         // Fila 2: Formulario para registrar equipo
         JPanel formRegistro = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
         formRegistro.setOpaque(false);
@@ -215,11 +223,22 @@ public class JFEmergencias extends JFrame {
         formBusqueda.add(txtBuscarEquipo);
         formBusqueda.add(btnBuscarEquipo);
 
-        JPanel norte = new JPanel(new GridLayout(3, 1, 0, 4));
+        // Fila 4: integrante para el equipo seleccionado en la tabla
+        JPanel formIntegrante = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
+        formIntegrante.setOpaque(false);
+        formIntegrante.add(etiqueta("Integrante  ID:")); formIntegrante.add(txtIdIntegrante);
+        formIntegrante.add(etiqueta("Nom:")); formIntegrante.add(txtNombreIntegrante);
+        formIntegrante.add(etiqueta("Ape:")); formIntegrante.add(txtApellidoIntegrante);
+        formIntegrante.add(etiqueta("Tel:")); formIntegrante.add(txtTelefonoIntegrante);
+        formIntegrante.add(etiqueta("Función:")); formIntegrante.add(txtFuncionIntegrante);
+        formIntegrante.add(btnAgregarIntegrante);
+        
+        JPanel norte = new JPanel(new GridLayout(4, 1, 0, 4));
         norte.setOpaque(false);
         norte.add(formAsignacion);
         norte.add(formRegistro);
         norte.add(formBusqueda);
+        norte.add(formIntegrante);
 
         panel.add(norte, BorderLayout.NORTH);
         panel.add(estilizar(tablaEquipos), BorderLayout.CENTER);
@@ -299,6 +318,8 @@ public class JFEmergencias extends JFrame {
         cmbEmergenciaTriaje.setActionCommand("emergenciaTriaje");
         cmbEmergenciaParaEquipo.setActionCommand("emergenciaParaEquipo"); // Conectado
         btnBuscarEquipo.setActionCommand("buscarEquipo");
+        btnAgregarIntegrante.setActionCommand("agregarIntegrante");
+        btnFinalizarMision.setActionCommand("finalizarMision");
 
         btnRegistrar.addActionListener(oyente);
         btnLimpiar.addActionListener(oyente);
@@ -316,6 +337,8 @@ public class JFEmergencias extends JFrame {
         cmbEmergenciaTriaje.addActionListener(oyente);
         cmbEmergenciaParaEquipo.addActionListener(oyente); // Conectado
         btnBuscarEquipo.addActionListener(oyente);
+        btnAgregarIntegrante.addActionListener(oyente);
+        btnFinalizarMision.addActionListener(oyente);
     }
 
     // Getters
@@ -459,7 +482,17 @@ public class JFEmergencias extends JFrame {
     public void agregarFilaEquipo(Object[] fila) { modeloEquipos.addRow(fila); }
     public void limpiarFormularioEquipo() { txtCodigoEquipo.setText(""); txtNombreEquipo.setText(""); }
     public String getCodigoBusquedaEquipo() { return txtBuscarEquipo.getText().trim(); }
-
+    public String getIdIntegrante() { return txtIdIntegrante.getText().trim(); }
+    public String getNombreIntegrante() { return txtNombreIntegrante.getText().trim(); }
+    public String getApellidoIntegrante() { return txtApellidoIntegrante.getText().trim(); }
+    public String getTelefonoIntegrante() { return txtTelefonoIntegrante.getText().trim(); }
+    public String getFuncionIntegrante() { return txtFuncionIntegrante.getText().trim(); }
+    public void limpiarFormularioIntegrante() {
+        txtIdIntegrante.setText(""); txtNombreIntegrante.setText("");
+        txtApellidoIntegrante.setText(""); txtTelefonoIntegrante.setText("");
+        txtFuncionIntegrante.setText("");
+    }
+    
     public String getCodigoRecurso() { return txtCodigoRecurso.getText().trim(); }
     public String getNombreRecurso() { return txtNombreRecurso.getText().trim(); }
     public String getTipoRecurso() { return (String) cmbTipoRecurso.getSelectedItem(); }

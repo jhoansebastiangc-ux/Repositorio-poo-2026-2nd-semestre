@@ -70,6 +70,10 @@ public class ControladorEmergencias implements ActionListener {
                 registrarRecurso();
             } else if (accion.equals("asignarRecurso")) {
                 asignarRecurso();
+            } else if (accion.equals("agregarIntegrante")) {
+                agregarIntegrante();
+            } else if (accion.equals("finalizarMision")) {
+                finalizarMision();
             } else if (accion.equals("buscarEquipo")) {
                 String codigo = vista.getCodigoBusquedaEquipo();
                 if (codigo.isEmpty()) {
@@ -274,6 +278,34 @@ public class ControladorEmergencias implements ActionListener {
         vista.mostrarMensaje("✔ Equipo asignado a la emergencia correctamente.");
     }
 
+    private void agregarIntegrante() {
+        String codEquipo = vista.getCodigoEquipoSeleccionado();
+        if (codEquipo == null) {
+            throw new IllegalArgumentException("Selecciona un equipo de la tabla.");
+        }
+        if (vista.getIdIntegrante().isEmpty() || vista.getNombreIntegrante().isEmpty()
+                || vista.getApellidoIntegrante().isEmpty()) {
+            throw new IllegalArgumentException("ID, nombre y apellido del integrante son obligatorios.");
+        }
+        Integrante integrante = new Integrante(vista.getIdIntegrante(),
+            vista.getNombreIntegrante(), vista.getApellidoIntegrante(),
+            vista.getTelefonoIntegrante(), vista.getFuncionIntegrante());
+        sistema.registrarIntegranteEnEquipo(codEquipo, integrante);
+        vista.limpiarFormularioIntegrante();
+        actualizarTodo();
+        vista.mostrarMensaje("Integrante agregado al equipo.");
+    }
+
+    private void finalizarMision() {
+        String codEquipo = vista.getCodigoEquipoSeleccionado();
+        if (codEquipo == null) {
+            throw new IllegalArgumentException("Selecciona un equipo de la tabla.");
+        }
+        sistema.finalizarMisionEquipo(codEquipo);
+        actualizarTodo();
+        vista.mostrarMensaje("Misión finalizada. El equipo está disponible.");
+    }
+    
     private void registrarRecurso() {
         String codigo = vista.getCodigoRecurso();
         String nombre = vista.getNombreRecurso();
