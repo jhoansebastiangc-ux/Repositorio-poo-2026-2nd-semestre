@@ -80,6 +80,13 @@ public class Emergencia {
             afectados.add(afectado);
         }
     }
+    
+    public boolean validarAfectado(String cod){
+        for(Afectado a: afectados){
+            if (a.getIdentificacion().equals(cod)) return false;
+        }
+        return true;
+    }
 
     public List<Afectado> consultarAfectados() {
         return new ArrayList<Afectado>(afectados);

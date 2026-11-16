@@ -87,6 +87,8 @@ public class JFEmergencias extends JFrame {
     private JButton btnAsignarRecurso = new JButton("Asignar a Emergencia");
     private JComboBox<String> cmbEmergenciaParaRecurso = new JComboBox<>();
     private JTextField txtCantidadAsignar = new JTextField(4);
+    private JTextField txtCantidadAbastecer = new JTextField(4);
+    private JButton btnAbastecerRecurso = new JButton("Abastecer recurso seleccionado");
     private DefaultTableModel modeloRecursos = new DefaultTableModel(
         new String[] {"Código", "Nombre", "Tipo", "Disponible", "Estado"}, 0);
     private JTable tablaRecursos = new JTable(modeloRecursos);
@@ -116,7 +118,7 @@ public class JFEmergencias extends JFrame {
                 break;
             case "RECURSOS":
                 contenido.add(crearPanelRecursos(), BorderLayout.CENTER);
-                setSize(800, 500);
+                setSize(900, 500);
                 break;
             default:
                 setSize(800, 600);
@@ -264,10 +266,18 @@ public class JFEmergencias extends JFrame {
         formAsignacion.add(txtCantidadAsignar);
         formAsignacion.add(btnAsignarRecurso);
 
-        JPanel norte = new JPanel(new GridLayout(2, 1, 0, 4));
+        // Fila 3: abastecer el recurso elegido en la tabla
+        JPanel formAbastecer = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
+        formAbastecer.setOpaque(false);
+        formAbastecer.add(etiqueta("Cantidad a abastecer:"));
+        formAbastecer.add(txtCantidadAbastecer);
+        formAbastecer.add(btnAbastecerRecurso);
+
+        JPanel norte = new JPanel(new GridLayout(3, 1, 0, 4));
         norte.setOpaque(false);
         norte.add(form);
         norte.add(formAsignacion);
+        norte.add(formAbastecer);
 
         panel.add(norte, BorderLayout.NORTH);
         panel.add(estilizar(tablaRecursos), BorderLayout.CENTER);
@@ -314,6 +324,7 @@ public class JFEmergencias extends JFrame {
         btnAsignarEquipo.setActionCommand("asignarEquipo");
         btnRegistrarRecurso.setActionCommand("registrarRecurso");
         btnAsignarRecurso.setActionCommand("asignarRecurso");
+        btnAbastecerRecurso.setActionCommand("abastecerRecurso");
         cmbTipo.setActionCommand("tipo");
         cmbEmergenciaTriaje.setActionCommand("emergenciaTriaje");
         cmbEmergenciaParaEquipo.setActionCommand("emergenciaParaEquipo"); // Conectado
@@ -333,6 +344,7 @@ public class JFEmergencias extends JFrame {
         btnAsignarEquipo.addActionListener(oyente);
         btnRegistrarRecurso.addActionListener(oyente);
         btnAsignarRecurso.addActionListener(oyente);
+        btnAbastecerRecurso.addActionListener(oyente);
         cmbTipo.addActionListener(oyente);
         cmbEmergenciaTriaje.addActionListener(oyente);
         cmbEmergenciaParaEquipo.addActionListener(oyente); // Conectado
@@ -453,9 +465,16 @@ public class JFEmergencias extends JFrame {
     public String getCantidadAsignar() { return txtCantidadAsignar.getText().trim(); }
     public void limpiarCantidadAsignar() { txtCantidadAsignar.setText(""); }
 
+    public String getCantidadAbastecer() { return txtCantidadAbastecer.getText().trim(); }
+    public void limpiarCantidadAbastecer() { txtCantidadAbastecer.setText(""); }
+
     public String getIdAfectado() { return txtIdAfectado.getText().trim(); }
     public String getNombreAfectado() { return txtNombreAfectado.getText().trim(); }
     public String getEdadAfectado() { return txtEdadAfectado.getText().trim(); }
+    // Texto tal como se digitó (sin trim): permite distinguir "vacío" de "solo espacios"
+    public String getIdAfectadoSinRecortar() { return txtIdAfectado.getText(); }
+    public String getNombreAfectadoSinRecortar() { return txtNombreAfectado.getText(); }
+    public String getEdadAfectadoSinRecortar() { return txtEdadAfectado.getText(); }
     public String getPrioridadAfectado() { return (String) cmbPrioridadAfectado.getSelectedItem(); }
     public String getEstadoAfectado() { return (String) cmbEstadoAfectado.getSelectedItem(); }
     public int getFilaAfectadoSeleccionada() { return tablaAfectados.getSelectedRow(); }

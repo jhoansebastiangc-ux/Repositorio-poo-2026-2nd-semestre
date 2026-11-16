@@ -57,6 +57,15 @@ public class Recurso {
     public EstadoRecurso getEstado() {
         return estado;
     }
+
+    public int getCantidadDisponible() {
+        return cantidadDisponible;
+    }
+
+    public void setCantidadDisponible(int cantidadDisponible) {
+        this.cantidadDisponible = cantidadDisponible;
+    }
+    
     
     
 }

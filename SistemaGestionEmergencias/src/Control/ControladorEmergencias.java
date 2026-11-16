@@ -2,6 +2,7 @@ package Control;
 
 import Modelo.*;
 import Vista.*;
+import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -70,6 +71,8 @@ public class ControladorEmergencias implements ActionListener {
                 registrarRecurso();
             } else if (accion.equals("asignarRecurso")) {
                 asignarRecurso();
+            } else if (accion.equals("abastecerRecurso")) {
+                abastecerRecurso();
             } else if (accion.equals("agregarIntegrante")) {
                 agregarIntegrante();
             } else if (accion.equals("finalizarMision")) {
@@ -186,6 +189,10 @@ public class ControladorEmergencias implements ActionListener {
 
     private void registrarAfectado() {
         Emergencia emergencia = emergenciaDeTriaje();
+        String idA=vista.getIdAfectado();
+        if (!emergencia.validarAfectado(idA)) {
+            throw new IllegalArgumentException("Identificacion ya pertenece a otro afectado");
+        }
         int edad = -1; // -1 = edad desconocida
         if (!vista.getEdadAfectado().isEmpty()) {
             edad = leerEntero(vista.getEdadAfectado(), "La edad");
@@ -205,8 +212,45 @@ public class ControladorEmergencias implements ActionListener {
             throw new IllegalArgumentException("Selecciona un afectado de la tabla.");
         }
         Afectado afectado = emergencia.consultarAfectados().get(fila);
+
+        // Texto sin recortar: campo vacío = no cambiar el dato;
+        // solo espacios en blanco = borrar el valor (error de digitación previo)
+        String crudaId = vista.getIdAfectadoSinRecortar();
+        String crudoNombre = vista.getNombreAfectadoSinRecortar();
+        String crudaEdad = vista.getEdadAfectadoSinRecortar();
+        boolean cambiaId = !crudaId.isEmpty();
+        boolean cambiaNombre = !crudoNombre.isEmpty();
+        boolean cambiaEdad = !crudaEdad.isEmpty();
+        String nuevaId = crudaId.trim();         // "" si solo había espacios
+        String nuevoNombre = crudoNombre.trim(); // "" si solo había espacios
+        String textoEdad = crudaEdad.trim();     // "" si solo había espacios
+
+        // Primero se validan todos los datos, para no dejar el cambio a medias
+        if (!nuevaId.isEmpty() && !nuevaId.equals(afectado.getIdentificacion())) {
+            for (Afectado otro : emergencia.consultarAfectados()) {
+                if (otro != afectado && otro.getIdentificacion().equals(nuevaId)) {
+                    throw new IllegalArgumentException("Identificacion ya pertenece a otro afectado");
+                }
+            }
+        }
+        int nuevaEdad = afectado.getEdad();
+        if (cambiaEdad) {
+            // Solo espacios: se borra la edad (-1 = desconocida)
+            nuevaEdad = textoEdad.isEmpty() ? -1 : leerEntero(textoEdad, "La edad");
+        }
+
+        // Se aplican los cambios
+        if (cambiaId) {
+            afectado.actualizarIdentificacion(nuevaId); // vacío -> "No registrada"
+        }
+        if (cambiaNombre) {
+            afectado.actualizarNombre(nuevoNombre);     // vacío -> "Sin identificar"
+        }
+        afectado.actualizarEdad(nuevaEdad);
         afectado.asignarPrioridad(PrioridadAfectado.valueOf(vista.getPrioridadAfectado()));
         afectado.actualizarEstado(EstadoAfectado.valueOf(vista.getEstadoAfectado()));
+
+        vista.limpiarFormularioAfectado();
         actualizarTodo();
     }
 
@@ -315,15 +359,30 @@ public class ControladorEmergencias implements ActionListener {
         if (codigo.isEmpty() || nombre.isEmpty()) {
             throw new IllegalArgumentException("Complete el código y el nombre del recurso.");
         }
-        if (sistema.buscarRecurso(codigo) != null) {
+        if (sistema.buscarRecurso(codigo) != null && !sistema.buscarRecurso(codigo).getNombre().equals(nombre) && !sistema.buscarRecurso(codigo).getTipo().equals(tipo)) {
             throw new IllegalArgumentException("Ya existe un recurso con ese código.");
         }
-
+        if(sistema.buscarRecurso(codigo)!=null){
+            if(sistema.buscarRecurso(codigo).getNombre().equals(nombre) && sistema.buscarRecurso(codigo).getTipo().equals(tipo)){
+                sistema.abastecerRecurso(codigo, cantidad);
+                Recurso r=sistema.buscarRecurso(codigo);
+                JOptionPane.showMessageDialog(
+                    null, 
+                    "Se abasteció el recurso correctamente.", 
+                    "Operación Exitosa", 
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+                actualizarTodo();
+            }else{
+              throw new IllegalArgumentException("No se pudo abastecer el objeto");  
+            }
+        }else{
         Recurso recurso = new Recurso(codigo, nombre, tipo, cantidad);
         sistema.registrarRecurso(recurso);
         vista.limpiarFormularioRecurso();
         actualizarTodo();
         vista.mostrarMensaje("Recurso registrado exitosamente.");
+        }
     }
 
     private void asignarRecurso() {
@@ -343,6 +402,22 @@ public class ControladorEmergencias implements ActionListener {
         vista.limpiarCantidadAsignar();
         actualizarTodo();
         vista.mostrarMensaje("Recurso asignado correctamente.");
+    }
+
+    // Abastece el recurso seleccionado en la tabla con la cantidad del textfield propio
+    private void abastecerRecurso() {
+        String codRecurso = vista.getCodigoRecursoSeleccionado();
+        if (codRecurso == null) {
+            throw new IllegalArgumentException("Debe seleccionar un recurso de la tabla.");
+        }
+        int cantidad = leerEntero(vista.getCantidadAbastecer(), "La cantidad a abastecer");
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad a abastecer debe ser mayor a cero.");
+        }
+        sistema.abastecerRecurso(codRecurso, cantidad);
+        vista.limpiarCantidadAbastecer();
+        actualizarTodo();
+        vista.mostrarMensaje("Recurso abastecido correctamente.");
     }
 
     private void actualizarTablasEquiposRecursos() {

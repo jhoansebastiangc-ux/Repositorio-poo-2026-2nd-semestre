@@ -40,6 +40,31 @@ public class Afectado {
         }
     }
 
+    // Un valor vacío borra el dato y queda el valor por defecto, igual que en el constructor
+    public void actualizarIdentificacion(String identificacion) {
+        if (identificacion == null || identificacion.trim().isEmpty()) {
+            this.identificacion = "No registrada";
+        } else {
+            this.identificacion = identificacion.trim();
+        }
+    }
+
+    public void actualizarNombre(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            this.nombre = "Sin identificar";
+        } else {
+            this.nombre = nombre.trim();
+        }
+    }
+
+    // -1 = edad desconocida
+    public void actualizarEdad(int edad) {
+        if (edad < -1) {
+            throw new IllegalArgumentException("La edad no es válida.");
+        }
+        this.edad = edad;
+    }
+
     public String getIdentificacion() { return identificacion; }
     public String getNombre() { return nombre; }
     public int getEdad() { return edad; }

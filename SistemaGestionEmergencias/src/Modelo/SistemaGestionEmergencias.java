@@ -1,4 +1,3 @@
-
 package Modelo;
 
 import java.util.ArrayList;
@@ -105,6 +104,21 @@ public class SistemaGestionEmergencias {
             }
         }
         return null;
+    }
+    
+    public void abastecerRecurso(String codigo, int abastecer){
+        if (abastecer < 0) {
+            throw new IllegalArgumentException("La cantidad a abastecer no puede ser negativa.");
+        }
+        Recurso r = buscarRecurso(codigo);
+        if (r == null) {
+            throw new IllegalArgumentException("Recurso no encontrado.");
+        }
+        r.setCantidadDisponible(r.getCantidadDisponible() + abastecer);
+        // Si estaba AGOTADO y ahora hay existencias, vuelve a DISPONIBLE
+        if (r.getCantidadDisponible() > 0) {
+            r.actualizarEstado(EstadoRecurso.DISPONIBLE);
+        }
     }
 
     public void asignarEquipoAEmergencia(String codigoEmergencia, String codigoEquipo) {
