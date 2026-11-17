@@ -57,6 +57,12 @@ public class ControladorEmergencias implements ActionListener {
                 cambiarEstado();
             } else if (accion.equals("actualizarPrioridad")) {
                 actualizarPrioridad();
+            } else if (accion.equals("verDetalle")) {
+                verDetalle();
+            } else if (accion.equals("resumen")) {
+                verResumen();
+            } else if (accion.equals("filtroDisponibles")) {
+                actualizarTablasEquiposRecursos();
             } else if (accion.equals("emergenciaTriaje")) {
                 mostrarAfectados();
             } else if (accion.equals("registrarAfectado")) {
@@ -185,6 +191,70 @@ public class ControladorEmergencias implements ActionListener {
         vista.mostrarMensaje("Prioridad actualizada: " + emergencia.getPrioridad());
     }
 
+    private void verDetalle() {
+        Emergencia e = emergenciaSeleccionada();
+        StringBuilder sb = new StringBuilder(e.consultarInformacion());
+
+        sb.append("\n\n=== EQUIPOS ASIGNADOS ===\n");
+        List<AsignacionEquipo> equipos = sistema.consultarAsignacionesEquipo(e.getCodigo());
+        if (equipos.isEmpty()) {
+            sb.append("Ninguno.\n");
+        }
+        for (AsignacionEquipo a : equipos) {
+            sb.append("- ").append(a.getEquipo().getNombre())
+              .append(" (").append(a.getEquipo().getTipo()).append(")")
+              .append(" | ").append(a.getEstado())
+              .append(" | ").append(a.getFechaHoraAsignacion()).append("\n");
+            for (Integrante i : a.consultarIntegrantes()) {
+                sb.append("    · ").append(i.getNombre()).append(" ")
+                  .append(i.getApellido()).append(" - ")
+                  .append(i.getFuncion()).append("\n");
+            }
+        }
+
+        sb.append("\n=== RECURSOS ASIGNADOS ===\n");
+        List<AsignacionRecurso> recursos = sistema.consultarAsignacionesRecurso(e.getCodigo());
+        if (recursos.isEmpty()) {
+            sb.append("Ninguno.\n");
+        }
+        for (AsignacionRecurso a : recursos) {
+            sb.append("- ").append(a.getRecurso().getNombre())
+              .append(" | Cantidad: ").append(a.getCantidadAsignada())
+              .append(" | ").append(a.getFechaAsignacion()).append("\n");
+        }
+
+        sb.append("\n=== AFECTADOS ===\n");
+        List<Afectado> afectados = e.consultarAfectados();
+        if (afectados.isEmpty()) {
+            sb.append("Ninguno registrado.\n");
+        }
+        for (Afectado a : afectados) {
+            sb.append("- [").append(a.getPrioridad()).append("] ")
+              .append(a.getNombre()).append(" | ")
+              .append(a.getEstado()).append("\n");
+        }
+
+        vista.mostrarDetalle("Detalle de " + e.getCodigo(), sb.toString());
+    }
+
+    private void verResumen() {
+        StringBuilder sb = new StringBuilder("Emergencias por estado:\n");
+        for (EstadoEmergencia est : EstadoEmergencia.values()) {
+            sb.append("- ").append(est).append(": ")
+              .append(sistema.contarEmergenciasPorEstado(est)).append("\n");
+        }
+        sb.append("\nEmergencias por prioridad:\n");
+        for (PrioridadEmergencia p : PrioridadEmergencia.values()) {
+            sb.append("- ").append(p).append(": ")
+              .append(sistema.contarEmergenciasPorPrioridad(p)).append("\n");
+        }
+        sb.append("\nEn atención ahora: ")
+          .append(sistema.consultarEmergenciasEnAtencion().size());
+        sb.append("\nTotal de afectados estimados: ")
+          .append(sistema.calcularTotalAfectadosEstimados());
+        vista.mostrarDetalle("Resumen de emergencias", sb.toString());
+    }
+    
     // ---------- Afectados (RF-05 y RF-06) ----------
 
     private void registrarAfectado() {
@@ -422,13 +492,19 @@ public class ControladorEmergencias implements ActionListener {
 
     private void actualizarTablasEquiposRecursos() {
         vista.limpiarTablaEquipos();
-        for (Equipo eq : sistema.consultarEquipos()) {
-            vista.agregarFilaEquipo(new Object[]{eq.getCodigo(), eq.getNombre(), eq.getTipo(), eq.getEstado()});
+        List<Equipo> equipos = vista.soloEquiposDisponibles()
+            ? sistema.consultarEquiposDisponibles() : sistema.consultarEquipos();
+        for (Equipo eq : equipos) {
+            vista.agregarFilaEquipo(new Object[]{eq.getCodigo(), eq.getNombre(),
+                eq.getTipo(), eq.getEstado(), eq.getNumIntegrantes()});
         }
 
         vista.limpiarTablaRecursos();
-        for (Recurso r : sistema.consultarRecursos()) {
-            vista.agregarFilaRecurso(new Object[]{r.getCodigo(), r.getNombre(), r.getTipo(), r.consultarDisponibilidad(), r.getEstado()});
+        List<Recurso> recursos = vista.soloRecursosDisponibles()
+            ? sistema.consultarRecursosDisponibles() : sistema.consultarRecursos();
+        for (Recurso r : recursos) {
+            vista.agregarFilaRecurso(new Object[]{r.getCodigo(), r.getNombre(),
+                r.getTipo(), r.consultarDisponibilidad(), r.getEstado()});
         }
     }
 

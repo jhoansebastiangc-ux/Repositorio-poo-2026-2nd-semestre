@@ -40,6 +40,8 @@ public class JFEmergencias extends JFrame {
     private JComboBox<String> cmbEstadoNuevo = new JComboBox<>(new String[] {"REGISTRADA", "EN_ATENCION", "CONTROLADA", "CERRADA"});
     private JButton btnCambiarEstado = new JButton("Cambiar estado");
     private JButton btnActualizarPrioridad = new JButton("Actualizar prioridad");
+    private JButton btnVerDetalle = new JButton("Ver detalle");
+    private JButton btnResumen = new JButton("Resumen");
 
     // Panel Triaje
     private JComboBox<String> cmbEmergenciaTriaje = new JComboBox<>();
@@ -68,7 +70,7 @@ public class JFEmergencias extends JFrame {
     private JButton btnBuscarEquipo = new JButton("Buscar Equipo");
     private JComboBox<String> cmbEmergenciaParaEquipo = new JComboBox<>(); // Nuevo ComboBox para asignar
     private DefaultTableModel modeloEquipos = new DefaultTableModel(
-        new String[] {"Código", "Nombre", "Tipo", "Estado"}, 0);
+                new String[] {"Código", "Nombre", "Tipo", "Estado", "Integrantes"}, 0);
     private JTable tablaEquipos = new JTable(modeloEquipos);
     private JTextField txtIdIntegrante = new JTextField(7);
     private JTextField txtNombreIntegrante = new JTextField(7);
@@ -77,6 +79,7 @@ public class JFEmergencias extends JFrame {
     private JTextField txtFuncionIntegrante = new JTextField(7);
     private JButton btnAgregarIntegrante = new JButton("Agregar integrante");
     private JButton btnFinalizarMision = new JButton("Finalizar misión");
+    private JCheckBox chkSoloEquiposDisp = new JCheckBox("Solo disponibles");
     
     // Panel Recursos
     private JTextField txtCodigoRecurso = new JTextField(6);
@@ -89,6 +92,7 @@ public class JFEmergencias extends JFrame {
     private JTextField txtCantidadAsignar = new JTextField(4);
     private JTextField txtCantidadAbastecer = new JTextField(4);
     private JButton btnAbastecerRecurso = new JButton("Abastecer recurso seleccionado");
+    private JCheckBox chkSoloRecursosDisp = new JCheckBox("Solo disponibles");
     private DefaultTableModel modeloRecursos = new DefaultTableModel(
         new String[] {"Código", "Nombre", "Tipo", "Disponible", "Estado"}, 0);
     private JTable tablaRecursos = new JTable(modeloRecursos);
@@ -161,6 +165,7 @@ public class JFEmergencias extends JFrame {
         acciones.setOpaque(false);
         acciones.add(etiqueta("Nuevo estado:")); acciones.add(cmbEstadoNuevo);
         acciones.add(btnCambiarEstado); acciones.add(btnActualizarPrioridad);
+        acciones.add(btnVerDetalle); acciones.add(btnResumen);
 
         panel.add(norte, BorderLayout.NORTH);
         panel.add(estilizar(tablaEmergencias), BorderLayout.CENTER);
@@ -224,6 +229,8 @@ public class JFEmergencias extends JFrame {
         formBusqueda.add(etiqueta("Buscar por código:"));
         formBusqueda.add(txtBuscarEquipo);
         formBusqueda.add(btnBuscarEquipo);
+        chkSoloEquiposDisp.setOpaque(false); chkSoloEquiposDisp.setForeground(TEXTO);
+        formBusqueda.add(chkSoloEquiposDisp);
 
         // Fila 4: integrante para el equipo seleccionado en la tabla
         JPanel formIntegrante = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
@@ -272,6 +279,8 @@ public class JFEmergencias extends JFrame {
         formAbastecer.add(etiqueta("Cantidad a abastecer:"));
         formAbastecer.add(txtCantidadAbastecer);
         formAbastecer.add(btnAbastecerRecurso);
+        chkSoloRecursosDisp.setOpaque(false); chkSoloRecursosDisp.setForeground(TEXTO);
+        formAbastecer.add(chkSoloRecursosDisp);
 
         JPanel norte = new JPanel(new GridLayout(3, 1, 0, 4));
         norte.setOpaque(false);
@@ -331,6 +340,10 @@ public class JFEmergencias extends JFrame {
         btnBuscarEquipo.setActionCommand("buscarEquipo");
         btnAgregarIntegrante.setActionCommand("agregarIntegrante");
         btnFinalizarMision.setActionCommand("finalizarMision");
+        btnVerDetalle.setActionCommand("verDetalle");
+        btnResumen.setActionCommand("resumen");
+        chkSoloEquiposDisp.setActionCommand("filtroDisponibles");
+        chkSoloRecursosDisp.setActionCommand("filtroDisponibles");
 
         btnRegistrar.addActionListener(oyente);
         btnLimpiar.addActionListener(oyente);
@@ -351,6 +364,10 @@ public class JFEmergencias extends JFrame {
         btnBuscarEquipo.addActionListener(oyente);
         btnAgregarIntegrante.addActionListener(oyente);
         btnFinalizarMision.addActionListener(oyente);
+        btnVerDetalle.addActionListener(oyente);
+        btnResumen.addActionListener(oyente);
+        chkSoloEquiposDisp.addActionListener(oyente);
+        chkSoloRecursosDisp.addActionListener(oyente);
     }
 
     // Getters
@@ -501,6 +518,8 @@ public class JFEmergencias extends JFrame {
     public void agregarFilaEquipo(Object[] fila) { modeloEquipos.addRow(fila); }
     public void limpiarFormularioEquipo() { txtCodigoEquipo.setText(""); txtNombreEquipo.setText(""); }
     public String getCodigoBusquedaEquipo() { return txtBuscarEquipo.getText().trim(); }
+    public boolean soloEquiposDisponibles() { return chkSoloEquiposDisp.isSelected(); }
+    public boolean soloRecursosDisponibles() { return chkSoloRecursosDisp.isSelected(); }
     public String getIdIntegrante() { return txtIdIntegrante.getText().trim(); }
     public String getNombreIntegrante() { return txtNombreIntegrante.getText().trim(); }
     public String getApellidoIntegrante() { return txtApellidoIntegrante.getText().trim(); }
@@ -523,7 +542,16 @@ public class JFEmergencias extends JFrame {
     public void limpiarTablaRecursos() { modeloRecursos.setRowCount(0); }
     public void agregarFilaRecurso(Object[] fila) { modeloRecursos.addRow(fila); }
     public void limpiarFormularioRecurso() { txtCodigoRecurso.setText(""); txtNombreRecurso.setText(""); txtCantidadRecurso.setText(""); }
-
+    
+    
+    public void mostrarDetalle(String titulo, String texto) {
+        JTextArea area = new JTextArea(texto, 22, 50);
+        area.setEditable(false);
+        area.setCaretPosition(0);
+        JOptionPane.showMessageDialog(this, new JScrollPane(area), titulo,
+            JOptionPane.INFORMATION_MESSAGE);
+    }
+    
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Revisa los datos", JOptionPane.WARNING_MESSAGE);
     }

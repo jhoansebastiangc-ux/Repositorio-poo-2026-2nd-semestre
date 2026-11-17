@@ -8,7 +8,6 @@ public class Equipo {
     private String codigo;
     private String nombre;
     private TipoEquipo tipo;
-    private int numIntegrantes;
     private EstadoEquipo estado;
     private List<Integrante> integrantes;
 
@@ -16,7 +15,6 @@ public class Equipo {
         this.codigo = codigo;
         this.nombre = nombre;
         this.tipo = tipo;
-        this.numIntegrantes = 0;
         this.estado = EstadoEquipo.DISPONIBLE;
         this.integrantes = new ArrayList<Integrante>();
     }
@@ -55,5 +53,8 @@ public class Equipo {
         return tipo;
     }
     
+    public int getNumIntegrantes() {
+        return integrantes.size();
+    }
 //    
 }
