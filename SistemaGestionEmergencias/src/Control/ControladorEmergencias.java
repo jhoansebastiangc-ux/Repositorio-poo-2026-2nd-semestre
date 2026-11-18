@@ -25,6 +25,8 @@ public class ControladorEmergencias implements ActionListener {
         this.sistema = gestion;
         this.vista = vista;
         vista.conectar(this);
+        vista.alSeleccionarEmergencia(() -> cargarEmergenciaSeleccionada());
+        vista.alSeleccionarAfectado(() -> cargarAfectadoSeleccionado());
         ACTIVOS.add(this);
         final ControladorEmergencias esteControlador = this;
         vista.addWindowListener(new WindowAdapter() {
@@ -531,6 +533,33 @@ public class ControladorEmergencias implements ActionListener {
 
     // ---------- Ayudas ----------
 
+    private void cargarEmergenciaSeleccionada() {
+        String codigo = vista.getCodigoSeleccionado();
+        if (codigo == null) return;
+            Emergencia e = sistema.buscarEmergencia(codigo);
+        if (e != null) {
+            vista.cargarDatosPrioridad(e.getAfectadosEstimados(),
+            e.isInfraestructuraColapsada(), e.isCapacidadLocalSuperada());
+        }
+    }
+
+    private void cargarAfectadoSeleccionado() {
+        int fila = vista.getFilaAfectadoSeleccionada();
+        String codigo = vista.getCodigoEmergenciaTriaje();
+        if (fila < 0 || codigo == null) return;
+        Emergencia emergencia = sistema.buscarEmergencia(codigo);
+        if (emergencia == null) return;
+        List<Afectado> lista = emergencia.consultarAfectados();
+        if (fila >= lista.size()) return;
+        Afectado a = lista.get(fila);
+    // Los valores por defecto se dejan vacíos para conservar "vacío = no cambiar"
+        String id = a.getIdentificacion().equals("No registrada") ? "" : a.getIdentificacion();
+        String nombre = a.getNombre().equals("Sin identificar") ? "" : a.getNombre();
+        String edad = a.getEdad() < 0 ? "" : String.valueOf(a.getEdad());
+        vista.cargarAfectadoEnFormulario(id, nombre, edad,
+        a.getPrioridad().toString(), a.getEstado().toString());
+    }
+    
     // Refresca TODAS las ventanas abiertas con los datos actuales del modelo compartido
     private void actualizarTodo() {
         for (ControladorEmergencias c : new ArrayList<ControladorEmergencias>(ACTIVOS)) {

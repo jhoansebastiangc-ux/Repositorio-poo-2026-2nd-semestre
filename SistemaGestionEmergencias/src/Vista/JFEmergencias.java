@@ -14,7 +14,10 @@ public class JFEmergencias extends JFrame {
 
     // Panel Emergencias
     private JTextField txtCodigo = new JTextField();
-    private JTextField txtFecha = new JTextField();
+    private static String fechaHoy() {
+        return new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+    }
+    private JTextField txtFecha = new JTextField(fechaHoy());
     private JTextField txtNombre = new JTextField();
     private JTextField txtUbicacion = new JTextField();
     private JTextField txtAfectados = new JTextField();
@@ -467,7 +470,7 @@ public class JFEmergencias extends JFrame {
     }
 
     public void limpiarFormulario() {
-        txtCodigo.setText(""); txtFecha.setText(""); txtNombre.setText("");
+        txtCodigo.setText(""); txtFecha.setText(fechaHoy()); txtNombre.setText("");
         txtUbicacion.setText(""); txtAfectados.setText(""); txtExtra1.setText("");
         txtExtra2.setText(""); chkInfra.setSelected(false); chkCapacidad.setSelected(false);
     }
@@ -601,6 +604,33 @@ public class JFEmergencias extends JFrame {
     public void agregarFilaRecurso(Object[] fila) { modeloRecursos.addRow(fila); }
     public void limpiarFormularioRecurso() { txtCodigoRecurso.setText(""); txtNombreRecurso.setText(""); txtCantidadRecurso.setText(""); }
     
+    
+    public void alSeleccionarEmergencia(Runnable accion) {
+        tablaEmergencias.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) accion.run();
+        });
+    }
+
+    public void alSeleccionarAfectado(Runnable accion) {
+        tablaAfectados.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) accion.run();
+        });
+    }
+
+    public void cargarDatosPrioridad(int afectados, boolean infra, boolean capacidad) {
+        txtAfectados.setText(String.valueOf(afectados));
+        chkInfra.setSelected(infra);
+        chkCapacidad.setSelected(capacidad);
+    }
+
+    public void cargarAfectadoEnFormulario(String id, String nombre, String edad,
+            String prioridad, String estado) {
+        txtIdAfectado.setText(id);
+        txtNombreAfectado.setText(nombre);
+        txtEdadAfectado.setText(edad);
+        cmbPrioridadAfectado.setSelectedItem(prioridad);
+        cmbEstadoAfectado.setSelectedItem(estado);
+    }
     
     public void mostrarDetalle(String titulo, String texto) {
         JTextArea area = new JTextArea(texto, 22, 50);

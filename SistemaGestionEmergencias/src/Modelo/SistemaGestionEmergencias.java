@@ -126,6 +126,9 @@ public class SistemaGestionEmergencias {
         if (emergencia == null) {
             throw new IllegalArgumentException("Emergencia no encontrada.");
         }
+        if (emergencia.getEstado() == EstadoEmergencia.CERRADA && nuevo != EstadoEmergencia.CERRADA) {
+            throw new IllegalArgumentException("La emergencia está cerrada y no puede reabrirse.");
+        }
         // Al cerrar, se finalizan las misiones activas y los equipos quedan libres
         if (nuevo == EstadoEmergencia.CERRADA) {
             for (AsignacionEquipo a : listaAsignacionesEquipo) {
@@ -178,7 +181,7 @@ public class SistemaGestionEmergencias {
     }
 
     public void asignarRecursoAEmergencia(
-            String codigoEmergencia, String codigoRecurso, int cantidad) {
+        String codigoEmergencia, String codigoRecurso, int cantidad) {
 
         Emergencia emergencia = buscarEmergencia(codigoEmergencia);
         Recurso recurso = buscarRecurso(codigoRecurso);
