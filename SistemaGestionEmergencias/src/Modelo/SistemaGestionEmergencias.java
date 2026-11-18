@@ -120,19 +120,45 @@ public class SistemaGestionEmergencias {
             r.actualizarEstado(EstadoRecurso.DISPONIBLE);
         }
     }
+    
+    public void cambiarEstadoEmergencia(String codigo, EstadoEmergencia nuevo) {
+        Emergencia emergencia = buscarEmergencia(codigo);
+        if (emergencia == null) {
+            throw new IllegalArgumentException("Emergencia no encontrada.");
+        }
+        // Al cerrar, se finalizan las misiones activas y los equipos quedan libres
+        if (nuevo == EstadoEmergencia.CERRADA) {
+            for (AsignacionEquipo a : listaAsignacionesEquipo) {
+                if (a.getEmergencia() == emergencia && a.getEstado() == EstadoAsignacion.ACTIVA) {
+                    a.finalizarAsignacion();
+                    a.getEquipo().cambiarEstado(EstadoEquipo.DISPONIBLE);
+                }
+            }
+        }
+        emergencia.cambiarEstado(nuevo);
+    }
 
+    
+    
     public void asignarEquipoAEmergencia(String codigoEmergencia, String codigoEquipo) {
         Emergencia emergencia = buscarEmergencia(codigoEmergencia);
         Equipo equipo = buscarEquipo(codigoEquipo);
 
         if (emergencia != null && equipo != null) {
-            // REQUISITO: Evitar que un equipo ocupado en una misión sea asignado simultáneamente a otra
+            if (emergencia.getEstado() == EstadoEmergencia.CERRADA) {
+                throw new IllegalArgumentException("La emergencia está cerrada y no admite nuevas asignaciones.");
+            }
+            // Evitar que un equipo ocupado en una misión sea asignado simultáneamente a otra
             if (equipo.getEstado() == EstadoEquipo.EN_MISION || equipo.getEstado() == EstadoEquipo.ASIGNADO) {
                 throw new IllegalArgumentException("El equipo ya se encuentra ocupado en una misión y no puede ser asignado.");
             }
             
             if (equipo.getEstado() == EstadoEquipo.FUERA_DE_SERVICIO) {
                 throw new IllegalArgumentException("El equipo está fuera de servicio.");
+            }
+            
+            if (equipo.getNumIntegrantes() == 0) {
+                throw new IllegalArgumentException("El equipo no tiene integrantes. Agrega al menos uno antes de asignarlo.");
             }
             
             // Creamos la asignación registrando fecha/hora automáticamente (visto en tu clase AsignacionEquipo)
@@ -158,6 +184,9 @@ public class SistemaGestionEmergencias {
         Recurso recurso = buscarRecurso(codigoRecurso);
 
         if (emergencia != null && recurso != null){
+            if (emergencia.getEstado() == EstadoEmergencia.CERRADA) {
+                throw new IllegalArgumentException("La emergencia está cerrada y no admite nuevas asignaciones.");
+            }
             if (cantidad <= 0) {
                 throw new IllegalArgumentException("La cantidad a asignar debe ser mayor a cero.");
             }

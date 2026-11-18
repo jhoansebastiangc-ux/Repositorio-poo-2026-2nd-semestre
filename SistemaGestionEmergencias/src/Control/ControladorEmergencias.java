@@ -177,7 +177,8 @@ public class ControladorEmergencias implements ActionListener {
 
     private void cambiarEstado() {
         Emergencia emergencia = emergenciaSeleccionada();
-        emergencia.cambiarEstado(EstadoEmergencia.valueOf(vista.getEstadoNuevo()));
+        sistema.cambiarEstadoEmergencia(emergencia.getCodigo(),
+            EstadoEmergencia.valueOf(vista.getEstadoNuevo()));
         actualizarTodo();
     }
 
@@ -259,13 +260,16 @@ public class ControladorEmergencias implements ActionListener {
 
     private void registrarAfectado() {
         Emergencia emergencia = emergenciaDeTriaje();
+        if (emergencia.getEstado() == EstadoEmergencia.CERRADA) {
+            throw new IllegalArgumentException("La emergencia está cerrada y no admite nuevos afectados.");
+        }
         String idA=vista.getIdAfectado();
         if (!emergencia.validarAfectado(idA)) {
             throw new IllegalArgumentException("Identificacion ya pertenece a otro afectado");
         }
         int edad = -1; // -1 = edad desconocida
         if (!vista.getEdadAfectado().isEmpty()) {
-            edad = leerEntero(vista.getEdadAfectado(), "La edad");
+            edad = leerEdad(vista.getEdadAfectado());
         }
         Afectado afectado = new Afectado(vista.getIdAfectado(),
             vista.getNombreAfectado(), edad,
@@ -306,7 +310,7 @@ public class ControladorEmergencias implements ActionListener {
         int nuevaEdad = afectado.getEdad();
         if (cambiaEdad) {
             // Solo espacios: se borra la edad (-1 = desconocida)
-            nuevaEdad = textoEdad.isEmpty() ? -1 : leerEntero(textoEdad, "La edad");
+            nuevaEdad = textoEdad.isEmpty() ? -1 : leerEdad(textoEdad);
         }
 
         // Se aplican los cambios
@@ -562,7 +566,11 @@ public class ControladorEmergencias implements ActionListener {
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
         formato.setLenient(false);
         try {
-            return formato.parse(texto);
+            Date fecha = formato.parse(texto);
+            if (fecha.after(new Date())) {
+                throw new IllegalArgumentException("La fecha no puede ser futura.");
+            }
+            return fecha;
         } catch (ParseException ex) {
             throw new IllegalArgumentException("Escribe la fecha como AAAA-MM-DD.");
         }
@@ -580,6 +588,14 @@ public class ControladorEmergencias implements ActionListener {
         }
     }
 
+    private int leerEdad(String texto) {
+        int edad = leerEntero(texto, "La edad");
+        if (edad > 120) {
+            throw new IllegalArgumentException("La edad no es válida (máximo 120).");
+        }
+        return edad;
+    }
+    
     private double leerDecimal(String texto, String campo) {
         try {
             double valor = Double.parseDouble(texto.replace(',', '.'));
