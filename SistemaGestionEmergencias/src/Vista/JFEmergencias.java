@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.event.ActionListener;
 
 public class JFEmergencias extends JFrame {
@@ -134,6 +135,7 @@ public class JFEmergencias extends JFrame {
     }
 
     private JPanel crearPanelEmergencias() {
+        colorearEmergencias();
         JPanel panel = tarjeta("Registro de Emergencias");
         JPanel form = new JPanel(new GridLayout(0, 4, 6, 6));
         form.setOpaque(false);
@@ -174,6 +176,7 @@ public class JFEmergencias extends JFrame {
     }
 
     private JPanel crearPanelTriaje() {
+        colorearTriaje();
         JPanel panel = tarjeta("Triaje de Afectados");
         JPanel selector = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
         selector.setOpaque(false);
@@ -306,6 +309,61 @@ public class JFEmergencias extends JFrame {
         borde.setTitleColor(TEXTO);
         p.setBorder(BorderFactory.createCompoundBorder(borde, BorderFactory.createEmptyBorder(4, 4, 4, 4)));
         return p;
+    }
+    
+    private void colorearEmergencias() {
+        tablaEmergencias.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tabla, Object valor,
+                    boolean seleccionada, boolean foco, int fila, int columna) {
+                Component c = super.getTableCellRendererComponent(tabla, valor, seleccionada, foco, fila, columna);
+                if (seleccionada) {
+                    c.setBackground(new Color(70, 130, 180));
+                    c.setForeground(Color.WHITE);
+                    return c;
+                }
+                String prioridad = tabla.getValueAt(fila, 5).toString();
+                if (prioridad.equals("ALTA")) {
+                    c.setBackground(new Color(120, 40, 40));      // rojo
+                } else if (prioridad.equals("MEDIA")) {
+                    c.setBackground(new Color(140, 85, 25));      // naranja
+                } else {
+                    c.setBackground(new Color(130, 110, 30));     // amarillo
+                }
+                c.setForeground(TEXTO);
+                return c;
+            }
+        });
+    }
+    
+    private void colorearTriaje() {
+        tablaAfectados.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tabla, Object valor,
+                    boolean seleccionada, boolean foco, int fila, int columna) {
+                Component c = super.getTableCellRendererComponent(tabla, valor, seleccionada, foco, fila, columna);
+                if (seleccionada) {
+                    c.setBackground(new Color(70, 130, 180));
+                    c.setForeground(Color.WHITE);
+                    return c;
+                }
+                String prioridad = tabla.getValueAt(fila, 0).toString();
+                if (prioridad.equals("ROJO")) {
+                    c.setBackground(new Color(120, 40, 40));
+                    c.setForeground(TEXTO);
+                } else if (prioridad.equals("AMARILLO")) {
+                    c.setBackground(new Color(130, 110, 30));
+                    c.setForeground(TEXTO);
+                } else if (prioridad.equals("VERDE")) {
+                    c.setBackground(new Color(40, 100, 50));
+                    c.setForeground(TEXTO);
+                } else {
+                    c.setBackground(new Color(15, 15, 15));
+                    c.setForeground(new Color(180, 180, 180));
+                }
+                return c;
+            }
+        });
     }
 
     private JScrollPane estilizar(JTable tabla) {
