@@ -177,9 +177,17 @@ public class ControladorEmergencias implements ActionListener {
 
     private void cambiarEstado() {
         Emergencia emergencia = emergenciaSeleccionada();
-        sistema.cambiarEstadoEmergencia(emergencia.getCodigo(),
-            EstadoEmergencia.valueOf(vista.getEstadoNuevo()));
+        EstadoEmergencia nuevo = EstadoEmergencia.valueOf(vista.getEstadoNuevo());
+        if (nuevo == emergencia.getEstado()) {
+            throw new IllegalArgumentException("La emergencia ya está en estado " + nuevo + ".");
+        }
+        if (nuevo == EstadoEmergencia.CERRADA && !vista.confirmar(
+                "Al cerrar la emergencia se finalizarán sus misiones activas y los equipos quedarán disponibles. ¿Continuar?")) {
+            return;
+        }
+        sistema.cambiarEstadoEmergencia(emergencia.getCodigo(), nuevo);
         actualizarTodo();
+        vista.mostrarMensaje("Estado actualizado a " + nuevo + ".");
     }
 
     // Usa los datos del formulario: afectados y casillas de infraestructura/capacidad
@@ -277,6 +285,7 @@ public class ControladorEmergencias implements ActionListener {
         emergencia.agregarAfectado(afectado);
         vista.limpiarFormularioAfectado();
         actualizarTodo();
+        vista.mostrarMensaje("Afectado registrado.");
     }
 
     private void actualizarTriaje() {
@@ -326,6 +335,7 @@ public class ControladorEmergencias implements ActionListener {
 
         vista.limpiarFormularioAfectado();
         actualizarTodo();
+        vista.mostrarMensaje("Triaje actualizado.");
     }
 
     private void mostrarAfectados() {
@@ -419,6 +429,9 @@ public class ControladorEmergencias implements ActionListener {
         if (codEquipo == null) {
             throw new IllegalArgumentException("Selecciona un equipo de la tabla.");
         }
+        if (!vista.confirmar("¿Finalizar la misión del equipo " + codEquipo + "? El equipo quedará disponible.")) {
+            return;
+        }
         sistema.finalizarMisionEquipo(codEquipo);
         actualizarTodo();
         vista.mostrarMensaje("Misión finalizada. El equipo está disponible.");
@@ -472,6 +485,10 @@ public class ControladorEmergencias implements ActionListener {
         }
         int cantidad = leerEntero(vista.getCantidadAsignar(), "La cantidad a asignar");
 
+        if (!vista.confirmar("Se descontarán " + cantidad + " unidades del recurso " + codRecurso
+                + ". Esta acción no se puede deshacer. ¿Continuar?")) {
+            return;
+        }
         sistema.asignarRecursoAEmergencia(codEmergencia, codRecurso, cantidad);
         vista.limpiarCantidadAsignar();
         actualizarTodo();
